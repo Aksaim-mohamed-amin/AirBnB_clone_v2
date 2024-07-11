@@ -21,7 +21,9 @@ echo -e '
 </body>
 </html>' | sudo tee /data/web_static/releases/test/index.html > /dev/null
 sudo ln -sfn /data/web_static/releases/test/ /data/web_static/current
-sudo chown ubuntu:ubuntu /data/
+
+chown -R ubuntu /data/
+chgrp -R ubuntu /data/
 
 # Update the nginx config file
 sudo bash -c 'cat <<EOF > /etc/nginx/sites-available/default
