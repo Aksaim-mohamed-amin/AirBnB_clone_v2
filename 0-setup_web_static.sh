@@ -56,8 +56,8 @@ config="server {
 
        root /var/www/html;
        index index.html;
-       try_files \$uri \$uri/ =404;
-       add_header X-Served-By \$hostname;
+       try_files \\\$uri \\\$uri/ =404;
+       add_header X-Served-By \\\$hostname;
 
        location /hbnb_static {
        		alias /data/web_static/current/;
