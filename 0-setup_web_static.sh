@@ -50,23 +50,25 @@ $index
 EOF"
 
 # Updte Nginx config
-config="server {
+sudo bash -c 'cat <<EOF > /etc/nginx/sites-available/default
+server {
        listen 80 default_server;
-       listen [::]:80 default_server;
+              listen [::]:80 default_server;
 
        root /var/www/html;
-       index index.html;
-       try_files \\\$uri \\\$uri/ =404;
-       add_header X-Served-By \\\$hostname;
+              index index.html;
 
-       location /hbnb_static {
-       		alias /data/web_static/current/;
+       server_name _;
+
+       location / {
+                try_files \$uri \$uri/ =404;
+                add_header X-Served-By \$hostname;
        }
-}"
-
-sudo bash -c "cat <<EOF > /etc/nginx/sites-available/default
-$config
-EOF"
+       location /hbnb_static {
+                alias /data/web_static/current/;
+       }
+}
+EOF'
 
 # Restart Nginx
 sudo service nginx restart
