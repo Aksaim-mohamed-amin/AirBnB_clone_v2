@@ -9,7 +9,6 @@ sudo apt install -y nginx
 # Create necessary folders and set permissions
 sudo mkdir -p /data/web_static/{shared,releases/test}
 sudo ln -sfn /data/web_static/releases/test /data/web_static/current
-sudo chown -R ubuntu:ubuntu /data
 
 # Create index.html
 index='<!DOCTYPE html>
@@ -69,6 +68,10 @@ server {
        }
 }
 EOF'
+
+# Change the premission for the files
+chown -R ubuntu /data/
+chgrp -R ubuntu /data/
 
 # Restart Nginx
 sudo service nginx restart
