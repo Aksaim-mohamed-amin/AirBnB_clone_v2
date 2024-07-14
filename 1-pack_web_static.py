@@ -20,3 +20,5 @@ def do_pack():
     rs = local("tar -cvzf versions/%s web_static" % archive_name)
     if rs.failed is True:
         return None
+
+    return f"versions/{archive_name}"
