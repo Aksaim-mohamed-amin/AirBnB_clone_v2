@@ -3,7 +3,7 @@
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from models.base_model import Base
+from models.base_model import BaseModel, Base
 from models.user import User
 from models.place import Place
 from models.state import State
@@ -36,7 +36,7 @@ class DBStorage:
                                       pool_pre_ping=True)
 
         if env == 'test':
-            Base.metadate.drop_all(self.__engine)
+            Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
         """
@@ -46,15 +46,16 @@ class DBStorage:
         cls_dict = {}
 
         if cls:
-            objects = self.__session.query(cls).all()
+            objects = self.__session.query(self.classes[cls]).all()
             for obj in objects:
                 key = f"{obj.__class__.__name__}.{obj.id}"
                 cls_dict[key] = obj
         else:
-            for model in self.classes.values():
-                objects = self.__session.query(model).all()
-                key = f"{obj.__class__.__name__}.{obj.id}"
-                cls_dict[key] = obj
+            for model_name, model_class in self.classes.items():
+                objects = self.__session.query(model_class).all()
+                for obj in objects:
+                    key = f"{obj.__class__.__name__}.{obj.id}"
+                    cls_dict[key] = obj
 
         return (cls_dict)
 
@@ -68,11 +69,11 @@ class DBStorage:
 
     def delete(self, obj=None):
         """Delete from the current database session obj"""
-        if obj not None:
-            self._session.delete(obj)
+        if obj is not None:
+            self.__session.delete(obj)
 
     def reload(self):
         """Create a session adand reload the database"""
-        Base.metadata.create_all(engine)
+        Base.metadata.create_all(self.__engine)
         Session = sessionmaker(bind=self.__engine, expire_on_commit=False)
         self.__session = scoped_session(Session)

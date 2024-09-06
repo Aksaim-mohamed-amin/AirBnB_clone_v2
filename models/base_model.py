@@ -2,12 +2,12 @@
 """This module defines a base class for all models in our hbnb clone"""
 import uuid
 from datetime import datetime
-from models import storage
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import Column, String, DateTime
 
 
 Base = declarative_base()
+
 
 class BaseModel:
     """A base class for all hbnb models"""
@@ -24,10 +24,10 @@ class BaseModel:
             self.updated_at = datetime.now()
         else:
             try:
-                kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
-                                                         '%Y-%m-%dT%H:%M:%S.%f')
-                kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
-                                                         '%Y-%m-%dT%H:%M:%S.%f')
+                kwargs['updated_at'] = datetime.strptime(
+                    kwargs['updated_at'], '%Y-%m-%dT%H:%M:%S.%f')
+                kwargs['created_at'] = datetime.strptime(
+                    kwargs['created_at'], '%Y-%m-%dT%H:%M:%S.%f')
                 del kwargs['__class__']
             except KeyError:
                 pass
@@ -61,4 +61,5 @@ class BaseModel:
 
     def delete(self):
         """Delet this instance from the storage"""
+        from models import storage
         storage.delete(self)

@@ -23,6 +23,6 @@ class State(BaseModel, Base):
             from models import storage
             from models.city import City
 
-            cities = storage.all(City)
+            cities = storage.all(City).values()
 
-            return [city for city in cities.values() if self.id == city.state_id]
+            return [city for city in cities if self.id == city.state_id]
