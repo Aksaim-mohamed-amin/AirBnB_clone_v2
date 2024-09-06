@@ -25,4 +25,4 @@ class State(BaseModel, Base):
 
             cities = storage.all(City)
 
-            return [city for city in cities.values() if self.id = city.state_id]
+            return [city for city in cities.values() if self.id == city.state_id]
