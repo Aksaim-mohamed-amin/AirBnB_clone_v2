@@ -23,13 +23,17 @@ class BaseModel:
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
         else:
+            if 'id' not in kwargs:
+                kwargs['id'] = str(uuid.uuid4())
+            if 'created_at' not in kwargs:
+                kwargs['created_at'] = kwargs['updated_at'] = datetime.now()
             try:
                 kwargs['updated_at'] = datetime.strptime(
                     kwargs['updated_at'], '%Y-%m-%dT%H:%M:%S.%f')
                 kwargs['created_at'] = datetime.strptime(
                     kwargs['created_at'], '%Y-%m-%dT%H:%M:%S.%f')
                 del kwargs['__class__']
-            except KeyError:
+            except (ValueError, TypeError, Exception):
                 pass
 
             self.__dict__.update(kwargs)
@@ -48,16 +52,17 @@ class BaseModel:
 
     def to_dict(self):
         """Convert instance into dict format"""
-        dictionary = {}
-        dictionary.update(self.__dict__)
-        dictionary.update({'__class__':
-                          (str(type(self)).split('.')[-1]).split('\'')[0]})
-        dictionary['created_at'] = self.created_at.isoformat()
-        dictionary['updated_at'] = self.updated_at.isoformat()
-        if '_sa_instance_state' in dictionary.keys():
-            del(dictionary['_sa_instance_state'])
+        my_dict = dict(self.__dict__)
 
-        return dictionary
+        if '_sa_instance_state' in my_dict:
+            del my_dict['_sa_instance_state']
+
+        my_dict["__class__"] = str(type(self).__name__)
+
+        my_dict["created_at"] = self.created_at.isoformat()
+        my_dict["updated_at"] = self.updated_at.isoformat()
+
+        return my_dict
 
     def delete(self):
         """Delet this instance from the storage"""

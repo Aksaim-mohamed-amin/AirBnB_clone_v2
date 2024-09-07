@@ -50,6 +50,9 @@ class Place(BaseModel, Base):
             returns the list of Amenity instances based on the attribute
             amenity_ids that contains all Amenity.id linked to the Place
             """
+            from models import storage
+            from models.amenity import Amenity
+
             amenities = storage.all(Amenity)
 
             amenities_list = []
