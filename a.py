@@ -3,9 +3,6 @@
 """
 from models import *
 
-user = User(name="amine")
-user.save()
-
 # creation of a State
 state = State(name="California")
 state.save()
