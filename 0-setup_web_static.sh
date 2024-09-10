@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 # sets up web servers for the deployment of web_static
 
 # Create necessary folders
