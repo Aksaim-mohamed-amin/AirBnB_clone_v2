@@ -25,7 +25,7 @@ def do_deploy(archive_path):
 
         run(f"sudo rm -rf /tmp/{tgz_file}")
 
-        run(f"sudo rsync  /data/web_static/releases/{folder}/web_static/* \
+        run(f"sudo mv  /data/web_static/releases/{folder}/web_static/* \
         /data/web_static/releases/{folder}/")
 
         run(f"sudo rm -rf /data/web_static/releases/{folder}/web_static")
