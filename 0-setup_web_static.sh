@@ -32,17 +32,14 @@ server {
        listen 80 default_server;
        listen [::]:80 default_server;
 
+       add_header X-Served-By \$hostname;
        root /var/www/html;
        index index.html;
 
        server_name _;
 
-       location / {
+       location /hbnb_static {
        		try_files \$uri \$uri/ =404;
-		add_header X-Served-By \$hostname;
-       }
-
-       location /hbnb_static/ {
        		alias /data/web_static/current/;
 		index index.html;
        }
