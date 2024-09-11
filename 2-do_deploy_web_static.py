@@ -8,40 +8,40 @@ env.hosts = ['100.25.157.136', '54.237.118.245']
 
 
 def do_deploy(archive_path):
-    """distributes an archive to web servers"""
+    """Deploy a new releas to the server"""
+
+    # Check if the archive file exists
     if not os.path.exists(archive_path):
         return False
 
-    folder = archive_path.split('/')[1].split('.')[0]
+    archive = archive_path.split('/')[1].split('.')[0]
 
     try:
-        # Upload the archive to /tmp/
+        # Upload the archive to the server
         put(archive_path, '/tmp/')
 
-        # Uncompress the archive
-        run('sudo mkdir -p /data/web_static/releases/{}'
-            .format(folder))
-
+        #Uncompress the archive
+        run('sudo mkdir -p /data/web_static/releases/{}'.format(archive))
         run('sudo tar -xzf /tmp/{}.tgz -C /data/web_static/releases/{}/'
-            .format(folder, folder))
+            .format(archive, archive))
 
-        # Remove the archive
-        run('sudo rm /tmp/{}.tgz'.format(folder))
+        # Delete the archive from the web server
+        run('sudo rm -rf /tmp/{}.tgz'.format(archive))
 
-        # Create a new the symbolic link
-        run('sudo mv /data/web_static/releases/{}/web_static/* \
-        /data/web_static/releases/{}'.format(folder, folder))
+        # Move the static files to the version file
+        run('sudo mv /data/web_static/releases/{}/web_static/* /data/web_static/releases/{}/'
+            .format(archive, archive))
+        run('sudo rm -rf /data/web_static/releases/{}/web_static'.format(archive))
 
-        run('sudo rm -rf /data/web_static/releases/{}/web_static'
-            .format(folder))
-
+        # Delete the old symbolic link from the server
         run('sudo rm -rf /data/web_static/current')
 
-        run('sudo ln -s /data/web_static/releases/{}/ \
-        /data/web_static/current'.format(folder, folder))
+        # Create a new symbolic link
+        run('sudo ln -sf /data/web_static/releases/{}/ /data/web_static/current'
+            .format(archive))
 
     except Exception as e:
-        print('Error:', e)
+        print(e)
         return False
 
     print('New version deployed!')
