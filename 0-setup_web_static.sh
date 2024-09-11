@@ -38,10 +38,13 @@ server {
 
        server_name _;
 
-       location /hbnb_static {
+       location / {
        		try_files \$uri \$uri/ =404;
-       		alias /data/web_static/current/;
 		index index.html;
+       }
+
+       location /hbnb_static {
+       		alias /data/web_static/current/;
        }
 }
 EOF'
