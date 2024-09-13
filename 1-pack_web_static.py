@@ -4,7 +4,6 @@ from fabric.api import local
 from datetime import datetime
 import os
 
-
 def do_pack():
     """
     generates a .tgz archive from the contents of the web_static folder
@@ -12,7 +11,7 @@ def do_pack():
     """
     # Create the versions directory
     if not os.path.exists('versions'):
-        os.mkdir('versions')
+        local('mkdir -p versions')
 
     # Get the current time stamp and create the archive name
     now = datetime.now()
