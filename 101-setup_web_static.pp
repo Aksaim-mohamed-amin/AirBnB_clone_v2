@@ -3,7 +3,13 @@ package { 'nginx':
   ensure => installed,
 }
 
-# Create the necessary directories
+# Ensure Nginx service is started and enabled
+service { 'nginx':
+  ensure => 'running',
+  enable => true,
+}
+
+# Create necessary directories
 file { '/data/web_static/shared/':
   ensure  => 'directory',
   recurse => true,
@@ -11,6 +17,7 @@ file { '/data/web_static/shared/':
 
 file { '/data/web_static/releases/test/':
   ensure  => 'directory',
+  recurse => true,
 }
 
 # Create a fake HTML page
@@ -30,13 +37,13 @@ file { '/data/web_static/releases/test/index.html':
 </html>',
 }
 
-# Create a symbolic link for the test folder to current
+# Create a symbolic link
 file { '/data/web_static/current':
   ensure => link,
   target => '/data/web_static/releases/test/',
 }
 
-# Set ownership for /data/ folder
+# Set ownership of /data directory
 file { '/data':
   ensure  => 'directory',
   owner   => 'ubuntu',
@@ -73,10 +80,4 @@ server {
     }
 }',
   notify  => Service['nginx'],
-}
-
-# Manage Nginx service
-service { 'nginx':
-  ensure => 'running',
-  enable => true,
 }
