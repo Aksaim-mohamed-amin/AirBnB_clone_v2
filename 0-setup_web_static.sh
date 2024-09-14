@@ -39,25 +39,24 @@ server {
     listen 80 default_server;
     listen [::]:80 default_server;
 
-    # Add header to show which server handled the request
-    add_header X-Served-By $HOSTNAME;
-
     # Document root
     root /var/www/html;
-    index index.html;
+    index index.html index.htm index.nginx-debian.html;
 
     # Server name(s)
-    server_name aksaim.tech www.aksaim.tech _;
+    server_name _;
+
+    # Add header to show which server handled the request
+    add_header X-Served-By \$hostname;
 
     # Main location block for default handling
     location / {
-    	     try_files \$uri \$uri/ =404;
+		try_files \$uri \$uri/ =404;
     }
 
     # Location for serving static files from the hbnb project
     location /hbnb_static {
-        alias /data/web_static/current;
-        index index.html index.htm;
+		alias /data/web_static/current/;
     }
 }
 EOF'
