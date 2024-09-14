@@ -51,7 +51,7 @@ server {
 
     # Main location block for default handling
     location / {
-        try_files $uri $uri/ =404;
+    	     try_files \$uri \$uri/ =404;
     }
 
     # Location for serving static files from the hbnb project
