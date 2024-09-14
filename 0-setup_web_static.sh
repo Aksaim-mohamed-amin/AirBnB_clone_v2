@@ -1,22 +1,68 @@
 #!/usr/bin/env bash
-# Set up server file system for deployment
+# sets up web servers for the deployment of web_static
 
-# install nginx
-sudo apt-get -y update
-sudo apt-get -y install nginx
+# Install nginx
+sudo apt update
+sudo apt install -y nginx
+
+# Start nginx server
 sudo service nginx start
 
-# configure file system
-sudo mkdir -p /data/web_static/shared/
-sudo mkdir -p /data/web_static/releases/test/
-echo "Holberton School" | sudo tee /data/web_static/releases/test/index.html > /dev/null
+# Create necessary folders
+sudo mkdir -p /data/web_static/shared/ /data/web_static/releases/test/
+
+# Create a fake html page
+sudo touch /data/web_static/releases/test/index.html
+sudo bash -c 'cat <<EOF > /data/web_static/releases/test/index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirBnB Clone</title>
+</head>
+<body>
+    <h1>Hello World!</h1>
+</body>
+</html>
+EOF'
+
+# Create a symbolic link for test folder to current
 sudo ln -sf /data/web_static/releases/test/ /data/web_static/current
 
-# set permissions
-sudo chown -R ubuntu:ubuntu /data/
+# Give ownership of the /data/ folder to the ubuntu user AND group
+sudo chown -Rh ubuntu:ubuntu /data/
 
-# configure nginx
-sudo sed -i '44i \\n\tlocation /hbnb_static {\n\t\talias /data/web_static/current/;\n\t}' /etc/nginx/sites-available/default
+# Update Nginx configuration to serve content from /data/web_static/current/ to hbnb_static
+sudo bash -c 'cat <<EOF > /etc/nginx/sites-available/default
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
 
-# restart web server
+    # Document root
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+
+    # Server name(s)
+    server_name _;
+
+    # Add header to show which server handled the request
+    add_header X-Served-By \$hostname;
+
+    # Main location block for default handling
+    location / {
+		try_files \$uri \$uri/ =404;
+    }
+
+    # Location for serving static files from the hbnb project
+    location /hbnb_static {
+		alias /data/web_static/current/;
+    }
+}
+EOF'
+
+# Restart Nginx to apply the changes
 sudo service nginx restart
+
+# Ensure the script exits successfully
+exit 0
