@@ -7,7 +7,6 @@ from datetime import datetime
 
 def do_pack():
     """Function to compress directory
-
     Return: path to archive on success; None on fail
     """
     # Get current time
@@ -15,7 +14,7 @@ def do_pack():
     now = now.strftime('%Y%m%d%H%M%S')
     archive_path = 'versions/web_static_' + now + '.tgz'
 
-    # Create archive
+    # Create the archive
     local('mkdir -p versions/')
     result = local('tar -cvzf {} web_static/'.format(archive_path))
 
