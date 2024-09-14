@@ -2,7 +2,7 @@
 """distributes an archive to web servers"""
 
 from fabric.api import env, put, run
-import os
+from os.path import exists
 
 env.hosts = ['100.25.157.136', '54.237.118.245']
 env.user = 'ubuntu'
@@ -11,7 +11,7 @@ env.key_filename = '~/.ssh/school'
 
 def do_deploy(archive_path):
     """distributes an archive to web servers"""
-    if not os.path.exists(archive_path):
+    if not exists(archive_path):
         return False
 
     folder = archive_path.split('/')[1].split('.')[0]
