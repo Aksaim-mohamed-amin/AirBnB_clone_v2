@@ -31,7 +31,7 @@ EOF'
 sudo ln -sf /data/web_static/releases/test/ /data/web_static/current
 
 # Give ownership of the /data/ folder to the ubuntu user AND group
-sudo chown -R ubuntu:ubuntu /data/
+sudo chown -Rh ubuntu:ubuntu /data/
 
 # Update Nginx configuration to serve content from /data/web_static/current/ to hbnb_static
 sudo bash -c 'cat <<EOF > /etc/nginx/sites-available/default
