@@ -38,23 +38,26 @@ sudo bash -c 'cat <<EOF > /etc/nginx/sites-available/default
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
+
+    # Add header to show which server handled the request
     add_header X-Served-By $HOSTNAME;
-    root   /var/www/html;
-    index  index.html index.htm;
 
+    # Document root
+    root /var/www/html;
+    index index.html;
+
+    # Server name(s)
+    server_name aksaim.tech www.aksaim.tech _;
+
+    # Main location block for default handling
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    # Location for serving static files from the hbnb project
     location /hbnb_static {
-	alias /data/web_static/current;
-	index index.html index.htm;
-    }
-
-    location /redirect_me {
-	return 301 http://cuberule.com/;
-    }
-
-    error_page 404 /404.html;
-    location /404 {
-      root /var/www/html;
-      internal;
+        alias /data/web_static/current;
+        index index.html index.htm;
     }
 }
 EOF'
