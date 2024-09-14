@@ -21,7 +21,7 @@ def do_pack():
     archive_path = 'versions/web_static_' + now + '.tgz'
 
     # Create archive
-    local('mkdir -p versions/')
+    local('mkdir -p versions')
     result = local('tar -cvzf {} web_static/'.format(archive_path))
 
     # Check if archiving was successful
