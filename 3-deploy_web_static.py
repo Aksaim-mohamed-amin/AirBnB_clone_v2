@@ -39,6 +39,7 @@ def do_deploy(archive_path):
 
     try:
         # Upload the archive to /tmp/
+        run('sudo mkdir -p /tmp/')
         put(archive_path, '/tmp/')
 
         # Uncompress the archive
