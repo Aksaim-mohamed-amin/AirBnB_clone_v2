@@ -1,92 +1,87 @@
-# Install Nginx
-package { 'nginx':
-  ensure => installed,
-}
+# Puppet for setup
 
-# Ensure Nginx service is started and enabled
-service { 'nginx':
-  ensure => 'running',
-  enable => true,
-}
-
-# Create necessary directories
-file { '/data':
-  ensure  => 'directory',
-  owner   => 'ubuntu',
-  group   => 'ubuntu',
-  recurse => true,
-}
-
-file { '/data/web_static':
-  ensure  => 'directory',
-  require => File['/data'],
-}
-
-file { '/data/web_static/shared':
-  ensure  => 'directory',
-  require => File['/data/web_static']
-}
-
-file { '/data/web_static/releases':
-  ensure  => 'directory',
-  require => File['/data/web_static'],
-}
-
-file { '/data/web_static/releases/test':
-  ensure  => 'directory',
-  require => File['/data/web_static/releases'],
-}
-
-# Create a fake HTML page
-file { '/data/web_static/releases/test/index.html':
-  ensure  => file,
-  content => '
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AirBnB Clone</title>
-</head>
-<body>
-    <h1>Hello World!</h1>
-</body>
-</html>',
-}
-
-# Create a symbolic link
-file { '/data/web_static/current':
-  ensure => link,
-  target => '/data/web_static/releases/test/',
-}
-
-# Update Nginx configuration
-file { '/etc/nginx/sites-available/default':
-  ensure  => file,
-  content => '
-server {
+$nginx_conf = "server {
     listen 80 default_server;
     listen [::]:80 default_server;
-
-    # Document root
-    root /var/www/html;
-    index index.html index.htm index.nginx-debian.html;
-
-    # Server name(s)
-    server_name _;
-
-    # Add header to show which server handled the request
-    add_header X-Served-By \$hostname;
-
-    # Main location block for default handling
-    location / {
-                try_files \$uri \$uri/ =404;
-    }
-
-    # Location for serving static files from the hbnb project
+    add_header X-Served-By ${hostname};
+    root   /var/www/html;
+    index  index.html index.htm;
     location /hbnb_static {
-                alias /data/web_static/current/;
+        alias /data/web_static/current;
+        index index.html index.htm;
     }
-}',
-  notify  => Service['nginx'],
+    location /redirect_me {
+        return 301 http://linktr.ee/firdaus_h_salim/;
+    }
+    error_page 404 /404.html;
+    location /404 {
+      root /var/www/html;
+      internal;
+    }
+}"
+
+package { 'nginx':
+  ensure   => 'present',
+  provider => 'apt'
+}
+
+-> file { '/data':
+  ensure  => 'directory'
+}
+
+-> file { '/data/web_static':
+  ensure => 'directory'
+}
+
+-> file { '/data/web_static/releases':
+  ensure => 'directory'
+}
+
+-> file { '/data/web_static/releases/test':
+  ensure => 'directory'
+}
+
+-> file { '/data/web_static/shared':
+  ensure => 'directory'
+}
+
+-> file { '/data/web_static/releases/test/index.html':
+  ensure  => 'present',
+  content => "this webpage is found in data/web_static/releases/test/index.htm \n"
+}
+
+-> file { '/data/web_static/current':
+  ensure => 'link',
+  target => '/data/web_static/releases/test'
+}
+
+-> exec { 'chown -R ubuntu:ubuntu /data/':
+  path => '/usr/bin/:/usr/local/bin/:/bin/'
+}
+
+file { '/var/www':
+  ensure => 'directory'
+}
+
+-> file { '/var/www/html':
+  ensure => 'directory'
+}
+
+-> file { '/var/www/html/index.html':
+  ensure  => 'present',
+  content => "This is my first upload  in /var/www/index.html***\n"
+}
+
+-> file { '/var/www/html/404.html':
+  ensure  => 'present',
+  content => "Ceci n'est pas une page - Error page\n"
+}
+
+-> file { '/etc/nginx/sites-available/default':
+  ensure  => 'present',
+  content => $nginx_conf
+}
+
+-> exec { 'nginx restart':
+  path => '/etc/init.d/'
 }
