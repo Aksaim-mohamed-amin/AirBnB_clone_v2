@@ -10,14 +10,31 @@ service { 'nginx':
 }
 
 # Create necessary directories
-file { '/data/web_static/shared/':
+file { '/data':
   ensure  => 'directory',
+  owner   => 'ubuntu',
+  group   => 'ubuntu',
   recurse => true,
 }
 
-file { '/data/web_static/releases/test/':
+file { '/data/web_static':
   ensure  => 'directory',
-  recurse => true,
+  require => File['/data'],
+}
+
+file { '/data/web_static/shared':
+  ensure  => 'directory',
+  require => File['/data/web_static']
+}
+
+file { '/data/web_static/releases':
+  ensure  => 'directory',
+  require => File['/data/web_static'],
+}
+
+file { '/data/web_static/releases/test':
+  ensure  => 'directory',
+  require => File['/data/web_static/releases'],
 }
 
 # Create a fake HTML page
@@ -41,14 +58,6 @@ file { '/data/web_static/releases/test/index.html':
 file { '/data/web_static/current':
   ensure => link,
   target => '/data/web_static/releases/test/',
-}
-
-# Set ownership of /data directory
-file { '/data':
-  ensure  => 'directory',
-  owner   => 'ubuntu',
-  group   => 'ubuntu',
-  recurse => true,
 }
 
 # Update Nginx configuration
