@@ -2,7 +2,7 @@
 """Compress and deploy web static package."""
 from fabric.api import env, local, put, run
 from datetime import datetime
-import os
+from os.path import exists
 
 # Define the hosts, user, and key file globally
 env.hosts = ['100.25.157.136', '54.237.118.245']
@@ -11,68 +11,59 @@ env.key_filename = '~/.ssh/school'
 
 
 def do_pack():
-    """Create a tar archive of the web_static directory.
-    Returns:
-        str: Path to the created archive on success.
-        None: If the archive creation fails.
+    """Function to compress directory
+    Return: path to archive on success; None on fail
     """
-    now = datetime.now().strftime('%Y%m%d%H%M%S')
-    archive_path = f'versions/web_static_{now}.tgz'
+    # Get current time
+    now = datetime.now()
+    now = now.strftime('%Y%m%d%H%M%S')
+    archive_path = 'versions/web_static_' + now + '.tgz'
 
-    try:
-        # Create the versions directory if it does not exist
-        local('mkdir -p versions')
+    # Create the archive
+    local('mkdir -p versions/')
+    result = local('tar -cvzf {} web_static/'.format(archive_path))
 
-        # Create the tar archive
-        result = local(f'tar -cvzf {archive_path} web_static/', capture=True)
-        if result.succeeded:
-            return archive_path
-    except Exception as e:
-        print(f'Error creating archive: {e}')
-
+    # Check if archiving was successful
+    if result.succeeded:
+        return archive_path
     return None
 
 
 def do_deploy(archive_path):
-    """Distribute an archive to web servers.
-
-    Args:
-        archive_path (str): The path to the archive to deploy.
-
-    Returns:
-        bool: True if the deployment was successful, False otherwise.
-    """
-    if not os.path.exists(archive_path):
-        print(f'Archive path {archive_path} does not exist.')
+    """distributes an archive to web servers"""
+    if not exists(archive_path):
         return False
 
-    folder = os.path.basename(archive_path).split('.')[0]
+    folder = archive_path.split('/')[1].split('.')[0]
 
     try:
         # Upload the archive to /tmp/
         put(archive_path, '/tmp/')
 
-        # Create directory for the new release
-        run(f'sudo mkdir -p /data/web_static/releases/{folder}')
+        # Uncompress the archive
+        run('sudo mkdir -p /data/web_static/releases/{}'
+            .format(folder))
 
-        # Uncompress the archive to the release folder
-        run(f'sudo tar -xzf /tmp/{folder}.tgz -C\
-        /data/web_static/releases/{folder}')
+        run('sudo tar -xzf /tmp/{}.tgz -C /data/web_static/releases/{}/'
+            .format(folder, folder))
 
-        # Remove the archive from /tmp/
-        run(f'sudo rm /tmp/{folder}.tgz')
+        # Remove the archive
+        run('sudo rm /tmp/{}.tgz'.format(folder))
 
-        # Move files and clean up
-        run(f'sudo mv /data/web_static/releases/{folder}/web_static/*\
-        /data/web_static/releases/{folder}')
-        run(f'sudo rm -rf /data/web_static/releases/{folder}/web_static')
+        # Create a new the symbolic link
+        run('sudo mv /data/web_static/releases/{}/web_static/* \
+        /data/web_static/releases/{}'.format(folder, folder))
 
-        # Update the symbolic link
-        run(f'sudo ln -sf /data/web_static/releases/{folder}\
-        /data/web_static/current')
+        run('sudo rm -rf /data/web_static/releases/{}/web_static'
+            .format(folder))
+
+        run('sudo rm -rf /data/web_static/current')
+
+        run('sudo ln -s /data/web_static/releases/{}/ \
+        /data/web_static/current'.format(folder, folder))
 
     except Exception as e:
-        print(f'Error deploying archive: {e}')
+        print('Error:', e)
         return False
 
     print('New version deployed!')
@@ -86,6 +77,6 @@ def deploy():
         bool: True if the deployment was successful, False otherwise.
     """
     archive_path = do_pack()
-    if archive_path:
-        return do_deploy(archive_path)
-    return False
+    if archive_path is None:
+        return False
+    return do_deploy(archive_path)

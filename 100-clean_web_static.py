@@ -24,6 +24,6 @@ def do_clean(number=0):
     # clean remote server
     try:
         run(f'cd /data/web_static/releases && ls -t |\
-        tail -n +{number+1} | xargs sudo rm -rf', pty=False)
+        tail -n +{number + 1} | xargs sudo rm -rf', pty=False)
     except Exception as e:
-        print(f"Error cleaning remote archives on {host}: {e}")
+        print(f"Error cleaning remote archives: {e}")
