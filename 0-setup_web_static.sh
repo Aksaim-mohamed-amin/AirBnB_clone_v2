@@ -61,6 +61,49 @@ server {
 }
 EOF'
 
+# Update the home page to return the custom message
+sudo bash -c 'cat <<EOF > /var/www/html/index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to My World!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            text-align: center;
+            margin-top: 50px;
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        p {
+            font-size: 18px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>&#127881; Hello there!</h1>
+        <p>I&apos;m Amin, and you&apos;ve stumbled upon my little corner of the internet. &#127760;</p>
+        <p>Get ready for something amazing—it&apos;s coming soon, and it&apos;s going to be epic! &#128640;</p>
+        <p>Stay tuned and have a great day! &#128578;</p>
+    </div>
+</body>
+</html>
+EOF'
+
 # Restart Nginx to apply the changes
 sudo service nginx restart
 
