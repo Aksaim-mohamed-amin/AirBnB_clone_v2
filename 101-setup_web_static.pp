@@ -1,24 +1,45 @@
-# Puppet for setup
+# Setup a new server for deployment
 
-$nginx_conf = "server {
+$nginx_conf = "
+server {
     listen 80 default_server;
     listen [::]:80 default_server;
+
+    # Document root
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+
+    # Server name(s)
+    server_name _;
+
+    # Add header to show which server handled the request
     add_header X-Served-By ${hostname};
-    root   /var/www/html;
-    index  index.html index.htm;
+
+    # Main location block for default handling
+    location / {
+		try_files $uri $uri/ =404;
+    }
+
+    # Location for serving static files from the hbnb project
     location /hbnb_static {
-        alias /data/web_static/current;
-        index index.html index.htm;
+		alias /data/web_static/current/;
     }
-    location /redirect_me {
-        return 301 http://linktr.ee/firdaus_h_salim/;
-    }
-    error_page 404 /404.html;
-    location /404 {
-      root /var/www/html;
-      internal;
-    }
-}"
+}
+"
+
+$html_page = '
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirBnB Clone</title>
+</head>
+<body>
+    <h1>Hello World!</h1>
+</body>
+</html>
+'
 
 package { 'nginx':
   ensure   => 'present',
@@ -47,7 +68,7 @@ package { 'nginx':
 
 -> file { '/data/web_static/releases/test/index.html':
   ensure  => 'present',
-  content => "this webpage is found in data/web_static/releases/test/index.htm \n"
+  content => $html_page,
 }
 
 -> file { '/data/web_static/current':
@@ -59,25 +80,7 @@ package { 'nginx':
   path => '/usr/bin/:/usr/local/bin/:/bin/'
 }
 
-file { '/var/www':
-  ensure => 'directory'
-}
-
--> file { '/var/www/html':
-  ensure => 'directory'
-}
-
--> file { '/var/www/html/index.html':
-  ensure  => 'present',
-  content => "This is my first upload  in /var/www/index.html***\n"
-}
-
--> file { '/var/www/html/404.html':
-  ensure  => 'present',
-  content => "Ceci n'est pas une page - Error page\n"
-}
-
--> file { '/etc/nginx/sites-available/default':
+file { '/etc/nginx/sites-available/default':
   ensure  => 'present',
   content => $nginx_conf
 }
