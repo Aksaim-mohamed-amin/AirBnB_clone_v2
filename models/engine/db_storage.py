@@ -46,6 +46,7 @@ class DBStorage:
         cls_dict = {}
 
         if cls:
+            cls = cls.__name__ if not isinstance(cls, str) else cls
             objects = self.__session.query(self.classes[cls]).all()
             for obj in objects:
                 key = f"{obj.__class__.__name__}.{obj.id}"
@@ -77,3 +78,9 @@ class DBStorage:
         Base.metadata.create_all(self.__engine)
         Session = sessionmaker(bind=self.__engine, expire_on_commit=False)
         self.__session = scoped_session(Session)
+
+    def close(self):
+        """
+        call remove() method on the private session attribute
+        """
+        self.__session.remove()
