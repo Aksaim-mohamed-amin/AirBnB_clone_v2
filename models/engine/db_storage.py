@@ -45,9 +45,6 @@ class DBStorage:
         """
         cls_dict = {}
 
-        if not isinstance(cls, str):
-            cls = cls.__name__
-
         if cls:
             objects = self.__session.query(self.classes[cls]).all()
             for obj in objects:
@@ -80,10 +77,3 @@ class DBStorage:
         Base.metadata.create_all(self.__engine)
         Session = sessionmaker(bind=self.__engine, expire_on_commit=False)
         self.__session = scoped_session(Session)
-
-    def close(self):
-        """
-        call remove() method on the private session attribute
-        """
-        if self.__session:
-            self.__session.close()
