@@ -6,9 +6,9 @@
   <BODY>
     <H1>States</H1>
     <UL>
-      {%- for state in states.values() -%}
-      <LI>state.to_dict()['id']: <B>state.to_dict()['name']</B></LI>
-      {%- endfor -%}
+      {%- for state in states %}
+      <LI>{{ state.to_dict()['id'] }}: <B>{{ state.to_dict()['name'] }}</B></LI>
+      {%- endfor %}
     </UL>
   </BODY>
-  </HTML>
+</HTML>
